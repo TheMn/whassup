@@ -20,6 +20,7 @@ def load_data(filepath=DEFAULT_FILEPATH):
                 "text": msg["text"] if isinstance(msg["text"], str) else "".join([t if isinstance(t, str) else "" for t in msg["text"]]),
                 "reply_to": msg.get("reply_to_message_id"),
                 "from": msg.get("from", "Unknown Sender"),
+                "date": msg.get("date"),
             })
     return messages, chat_id
 

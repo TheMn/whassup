@@ -32,6 +32,7 @@ class SearchEngine:
 
     def save_index(self):
         """Saves the vectorizer, tfidf_matrix, and threads to cache."""
+        os.makedirs(CACHE_DIR, exist_ok=True)
         with open(VECTORIZER_PATH, "wb") as f:
             pickle.dump(self.vectorizer, f)
         with open(TFIDF_MATRIX_PATH, "wb") as f:
@@ -84,6 +85,7 @@ class SearchEngine:
                 results.append({
                     "message_id": best_message['id'],
                     "text": best_message['text'],
-                    "from": best_message.get('from', 'Unknown Sender')
+                    "from": best_message.get('from', 'Unknown Sender'),
+                    "date": best_message.get('date')
                 })
         return results
