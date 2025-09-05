@@ -9,7 +9,7 @@ THREADS_PATH = os.path.join(CACHE_DIR, "threads.pkl")
 
 class SearchEngine:
     def __init__(self):
-        self.model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+        self.model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2', device='cpu')
         self.thread_embeddings = None
         self.threads = None
         if os.path.exists(CACHE_DIR):
@@ -57,12 +57,6 @@ class SearchEngine:
 
         query_embedding = self.model.encode(query, convert_to_tensor=True)
 
-        # Move embeddings to the same device
-        if torch.cuda.is_available():
-            query_embedding = query_embedding.to('cuda')
-            self.thread_embeddings = self.thread_embeddings.to('cuda')
-
-
         cosine_similarities = util.cos_sim(query_embedding, self.thread_embeddings)[0]
         cosine_similarities = cosine_similarities.cpu()
 
@@ -87,9 +81,6 @@ class SearchEngine:
                     continue
 
                 message_embeddings = self.model.encode(message_texts, convert_to_tensor=True)
-                if torch.cuda.is_available():
-                    message_embeddings = message_embeddings.to('cuda')
-
                 message_similarities = util.cos_sim(query_embedding, message_embeddings)[0].cpu()
                 best_message_index = torch.argmax(message_similarities)
                 best_message = thread_messages[best_message_index]
