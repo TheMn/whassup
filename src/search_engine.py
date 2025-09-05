@@ -54,7 +54,7 @@ class SearchEngine:
         """Checks if a cached index exists."""
         return self.vectorizer is not None and self.tfidf_matrix is not None and self.threads is not None
 
-    def search(self, query, k=3):
+    def search(self, query, k=15):
         """Performs a search for the given query."""
         if not self.has_index():
             raise Exception("Index has not been built or loaded yet.")
