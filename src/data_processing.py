@@ -1,11 +1,17 @@
 import json
 from collections import defaultdict
+import os
 
-def load_messages(filepath="statics/result.json"):
-    """Loads messages from the JSON file."""
+# Get the absolute path to the project root
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_FILEPATH = os.path.join(ROOT_DIR, "statics", "result.json")
+
+def load_data(filepath=DEFAULT_FILEPATH):
+    """Loads messages and chat ID from the JSON file."""
     with open(filepath, "r", encoding="utf-8") as f:
         data = json.load(f)
 
+    chat_id = data.get("id")
     messages = []
     for msg in data["messages"]:
         if msg["type"] == "message" and "text" in msg:
@@ -13,8 +19,9 @@ def load_messages(filepath="statics/result.json"):
                 "id": msg["id"],
                 "text": msg["text"] if isinstance(msg["text"], str) else "".join([t if isinstance(t, str) else "" for t in msg["text"]]),
                 "reply_to": msg.get("reply_to_message_id"),
+                "from": msg.get("from", "Unknown Sender"),
             })
-    return messages
+    return messages, chat_id
 
 def group_messages_into_threads(messages):
     """Groups messages into threads based on reply_to."""

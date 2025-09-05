@@ -1,5 +1,5 @@
 import argparse
-from src.data_processing import load_messages, group_messages_into_threads
+from src.data_processing import load_data, group_messages_into_threads
 from src.search_engine import SearchEngine
 
 def main():
@@ -13,7 +13,7 @@ def main():
     # 2. Check if an index exists. If not, build it.
     if not search_engine.has_index():
         print("No cached index found. Building a new one...")
-        messages = load_messages()
+        messages, _ = load_data()
         threads = group_messages_into_threads(messages)
         search_engine.build_index(threads)
         print("New index built and cached.")
@@ -27,7 +27,8 @@ def main():
     print(f"\nQuery: {args.query}")
     if results:
         for result in results:
-            print(f"Answer: Based on message {result['message_id']} → \"{result['text']}\"")
+            sender = result.get('from', 'Unknown Sender')
+            print(f"Answer from {sender} (message {result['message_id']}) → \"{result['text']}\"")
     else:
         print("No results found.")
 

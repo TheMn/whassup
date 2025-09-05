@@ -83,6 +83,7 @@ class SearchEngine:
 
                 results.append({
                     "message_id": best_message['id'],
-                    "text": best_message['text']
+                    "text": best_message['text'],
+                    "from": best_message.get('from', 'Unknown Sender')
                 })
         return results

@@ -11,9 +11,18 @@
         }
         #results {
             margin-top: 1em;
-            padding: 1em;
+        }
+        .card {
             border: 1px solid #ccc;
             border-radius: 5px;
+            padding: 1em;
+            margin-bottom: 1em;
+        }
+        .card p {
+            margin: 0.5em 0;
+        }
+        .card .sender {
+            font-weight: bold;
         }
     </style>
 </head>
@@ -28,6 +37,7 @@
     </div>
 
     <script>
+        const chatId = '{{ chat_id }}';
         document.getElementById('search-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const query = document.getElementById('query').value;
@@ -47,9 +57,27 @@
 
             if (results.length > 0) {
                 results.forEach(result => {
-                    const p = document.createElement('p');
-                    p.textContent = `Based on message ${result.message_id} → "${result.text}"`;
-                    resultsDiv.appendChild(p);
+                    const card = document.createElement('div');
+                    card.className = 'card';
+
+                    const sender = document.createElement('p');
+                    sender.className = 'sender';
+                    sender.textContent = result.from;
+                    card.appendChild(sender);
+
+                    const text = document.createElement('p');
+                    text.textContent = result.text;
+                    card.appendChild(text);
+
+                    if (chatId && result.message_id) {
+                        const link = document.createElement('a');
+                        link.href = `https://t.me/c/${chatId}/${result.message_id}`;
+                        link.textContent = 'View on Telegram';
+                        link.target = '_blank';
+                        card.appendChild(link);
+                    }
+
+                    resultsDiv.appendChild(card);
                 });
             } else {
                 resultsDiv.innerHTML = 'No results found.';
