@@ -1,51 +1,31 @@
-import json
+import argparse
+from src.data_processing import load_messages, group_messages_into_threads
+from src.search_engine import SearchEngine
 
-with open("result.json", "r", encoding="utf-8") as f:
-    data = json.load(f)
+def main():
+    parser = argparse.ArgumentParser(description="Search through chat messages.")
+    parser.add_argument("query", type=str, help="The search query.")
+    args = parser.parse_args()
 
-messages = []
-for msg in data["messages"]:
-    if msg["type"] == "message" and "text" in msg:
-        messages.append({
-            "id": msg["id"],
-            "text": msg["text"] if isinstance(msg["text"], str) else "".join([t if isinstance(t, str) else "" for t in msg["text"]]),
-            "reply_to": msg.get("reply_to_message_id"),
-        })
+    # 1. Load and process data
+    messages = load_messages()
+    threads = group_messages_into_threads(messages)
 
+    # 2. Build the search index
+    search_engine = SearchEngine()
+    search_engine.build_index(threads)
 
-from collections import defaultdict
+    # 3. Perform the search
+    results = search_engine.search(args.query)
 
-threads = defaultdict(list)
-for msg in messages:
-    root = msg["reply_to"] or msg["id"]
-    threads[root].append(msg)
+    # 4. Display results
+    print(f"Query: {args.query}")
+    if results:
+        for result in results:
+            # The search result now returns a dictionary with message_id and text
+            print(f"Answer: Based on message {result['message_id']} → \"{result['text']}\"")
+    else:
+        print("No results found.")
 
-
-from sentence_transformers import SentenceTransformer
-
-model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
-
-texts = [" ".join([m["text"] for m in thread]) for thread in threads.values()]
-embeddings = model.encode(texts, show_progress_bar=True, normalize_embeddings=True)
-
-import faiss
-import numpy as np
-
-dim = embeddings.shape[1]
-index = faiss.IndexFlatIP(dim)
-index.add(np.array(embeddings, dtype="float32"))
-
-def search(query, k=3):
-    q_emb = model.encode([query], normalize_embeddings=True)
-    D, I = index.search(np.array(q_emb, dtype="float32"), k)
-    results = []
-    for idx in I[0]:
-        if idx == -1: continue
-        results.append(texts[idx])
-    return results
-
-import re
-
-def extract_professor(text):
-    match = re.search(r"(استاد\s+\S+|Professor\s+\S+)", text, re.IGNORECASE)
-    return match.group(0) if match else None
+if __name__ == "__main__":
+    main()
