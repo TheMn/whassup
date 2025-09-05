@@ -1,4 +1,3 @@
-scikit-learn
-numpy
-scipy
 Flask
+sentence-transformers
+torch
