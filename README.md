@@ -13,11 +13,23 @@ This project is a simple command-line tool to search through messages from a Tel
 
 ## Usage
 
+### Command-line interface
+
 To search for a message, run the `process.py` script with your query as a command-line argument.
 
 ```bash
 python process.py "your search query"
 ```
+
+### Web interface
+
+To use the web interface, run the `app.py` script:
+
+```bash
+python app.py
+```
+
+Then, open your web browser and go to `http://127.0.0.1:5000`.
 
 ### Example
 

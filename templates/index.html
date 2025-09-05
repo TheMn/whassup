@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Chat Search</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 2em;
+        }
+        #results {
+            margin-top: 1em;
+            padding: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Telegram Chat Search</h1>
+    <form id="search-form">
+        <input type="text" id="query" name="query" placeholder="Enter your search query..." required>
+        <button type="submit">Search</button>
+    </form>
+    <div id="results">
+        <!-- Search results will be displayed here -->
+    </div>
+
+    <script>
+        document.getElementById('search-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const query = document.getElementById('query').value;
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = 'Searching...';
+
+            const response = await fetch('/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query: query })
+            });
+
+            const results = await response.json();
+            resultsDiv.innerHTML = '';
+
+            if (results.length > 0) {
+                results.forEach(result => {
+                    const p = document.createElement('p');
+                    p.textContent = `Based on message ${result.message_id} → "${result.text}"`;
+                    resultsDiv.appendChild(p);
+                });
+            } else {
+                resultsDiv.innerHTML = 'No results found.';
+            }
+        });
+    </script>
+</body>
+</html>
